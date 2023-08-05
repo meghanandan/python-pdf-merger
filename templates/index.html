@@ -14,6 +14,10 @@
             background-color: aquamarine;
             padding: 10px;
         }
+        .fileInputs{
+            height: 200px;
+            overflow-y: auto;
+        }
     </style>
 </head>
 <body>
@@ -27,14 +31,16 @@
         <div class="row">
             <div class="col-12">
                 <form id="pdfForm" enctype="multipart/form-data" class="row">
-                    <div class="col-auto">
-                        <input type="file" id="pdf1" required class="form-control">
+                    <div id="fileInputs">
+                        <div class="col-12">
+                            <input type="file" name="pdf_files" required class="form-control">
+                        </div>
                     </div>
-                    <div class="col-auto">
-                        <input type="file" id="pdf2" required class="form-control">
+                    <div class="col-12">
+                        <button type="button" class="btn btn-primary my-2" id="addFileButton">Add File</button>
                     </div>
-                    <div class="col-auto">
-                        <input type="submit" class="btn btn-primary" value="Merge PDFs" id="mergeButton">
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" id="mergeButton">Merge PDFs</button>
                     </div>
                 </form>
             </div>
@@ -52,13 +58,28 @@
         const mergeButton = document.getElementById('mergeButton');
         const downloadLink = document.getElementById('downloadLink');
         const resultDiv = document.getElementById('result');
+        const addFileButton = document.getElementById('addFileButton');
+        const fileInputsContainer = document.getElementById('fileInputs');
+
+        addFileButton.addEventListener('click', function () {
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.name = 'pdf_files';
+            fileInput.required = true;
+            fileInput.classList.add('form-control', 'my-2');
+            fileInputsContainer.appendChild(fileInput);
+        });
 
         pdfForm.addEventListener('submit', function (event) {
             event.preventDefault();
 
             const formData = new FormData();
-            formData.append('pdf1', document.getElementById('pdf1').files[0]);
-            formData.append('pdf2', document.getElementById('pdf2').files[0]);
+            const pdfFilesInputs = document.getElementsByName('pdf_files');
+            for (const input of pdfFilesInputs) {
+                for (const file of input.files) {
+                    formData.append('pdf_files', file);
+                }
+            }
 
             fetch('/merge_pdfs', {
                 method: 'POST',
